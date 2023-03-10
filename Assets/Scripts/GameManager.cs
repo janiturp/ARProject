@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -22,6 +23,7 @@ public class GameManager : MonoBehaviour
     bool trashBinSpawned = false;
     public GameObject bullet;
     GameObject bulletInstance;
+    GameObject trashbinInstance;
 
     int colorIndex = 0;
 
@@ -55,6 +57,27 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        var tapCount = Input.touchCount;
+        debugText.GetComponent<TMP_Text>().text = "TouchCount: " + tapCount.ToString() + Environment.NewLine
+                                                    + colorIndex;
+
+        if (tapCount > 1)
+        {
+            colorIndex++;
+
+            if (colorIndex >= colorList.Length)
+            {
+                colorIndex = 0;
+            }
+
+            trashbinInstance = GameObject.FindGameObjectWithTag("TrashBin");
+            if (trashbinInstance != null)
+            {
+                trashbinInstance.GetComponent<Renderer>().material.color = colorList[colorIndex];
+            }
+
+        }
+
         scoreText.GetComponent<TMP_Text>().text = playerScore.ToString();
 
         if(playerScore >= 10)
@@ -62,7 +85,7 @@ public class GameManager : MonoBehaviour
             victoryText.GetComponent<TMP_Text>().text = "You won!";
         }
 
-        if (Input.touchCount == 0)
+        if (tapCount == 0)
             return;
 
         RaycastHit hit;
@@ -93,22 +116,9 @@ public class GameManager : MonoBehaviour
             {
                 trashBin.transform.position = hitList[0].pose.position;
             }
-
             if (Input.GetTouch(0).phase == TouchPhase.Ended)
             {
                 trashBin = null;
-            }
-        }
-
-        if (Input.GetTouch(0).phase == TouchPhase.Began && Input.touchCount == 2)
-        {
-            trashBin.GetComponent<Material>().color = colorList[colorIndex];
-            colorIndex++;
-            debugText.GetComponent<TMP_Text>().text = "Input stationary. colorIndex: " + colorIndex.ToString();
-
-            if (colorIndex >= colorList.Length)
-            {
-                colorIndex = 0;
             }
         }
     }
